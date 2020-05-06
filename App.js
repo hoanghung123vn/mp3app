@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   StyleSheet,
   Text,
@@ -8,14 +8,29 @@ import {
   Image,
   Alert,
 } from "react-native";
-import player from "react-native-sound-player";
+import { Audio } from "expo-av";
 
 export default function App() {
-  function playMp3() {
-    try {
-      player.playSoundFile("phutinh", "mp3");
-    } catch (e) {
-      Alert.alert("Không thể phát nhạc!!!");
+  const soundObject = new Audio.Sound();
+  const [isPlay, setIsPlay] = useState(false);
+
+  useEffect(() => {
+    (async function () {
+      try {
+        await soundObject.loadAsync(require("./assets/phutinh.mp3"));
+      } catch (error) {
+        Alert.alert("Không thể phát nhạc");
+      }
+    })();
+  }, []);
+
+  async function togglePlay() {
+    if (isPlay) {
+      await soundObject.stopAsync();
+      setIsPlay(false);
+    } else {
+      await soundObject.playAsync();
+      setIsPlay(true);
     }
   }
   return (
@@ -34,9 +49,13 @@ export default function App() {
               style={styles.imagePrev}
             ></Image>
           </TouchableOpacity>
-          <TouchableOpacity onPress={playMp3}>
+          <TouchableOpacity onPress={togglePlay}>
             <Image
-              source={require("./assets/multimedia.png")}
+              source={
+                isPlay
+                  ? require("./assets/multimedia.png")
+                  : require("./assets/pause.png")
+              }
               style={styles.imagePause}
             ></Image>
           </TouchableOpacity>
